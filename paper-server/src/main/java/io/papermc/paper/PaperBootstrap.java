@@ -9,11 +9,12 @@ import joptsimple.OptionSet;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.Main;
 import io.papermc.paper.proxy.ProxyService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class PaperBootstrap {
     
     private static final Logger LOGGER = LoggerFactory.getLogger("bootstrap");
-    private static final String ANSI_GREEN = "\033[1;32m";
     private static final String ANSI_RED = "\033[1;31m";
     private static final String ANSI_RESET = "\033[0m";
     private static final AtomicBoolean running = new AtomicBoolean(true);
@@ -51,19 +52,6 @@ public final class PaperBootstrap {
         }
     }
 
-    private static void clearConsole() {
-        try {
-            if (System.getProperty("os.name").contains("Windows")) {
-                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-            } else {
-                System.out.print("\033[H\033[2J");
-                System.out.flush();
-            }
-        } catch (Exception e) {
-            // Ignore exceptions
-        }
-    }
-    
     private static void stopServices() {
         ProxyService.stopService();
     }

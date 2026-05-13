@@ -191,6 +191,8 @@ dependencies {
     implementation("io.github.cdimascio:dotenv-java:3.0.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
+    implementation("io.netty:netty-codec-http:4.1.118.Final")
     implementation("com.github.oshi:oshi-core:6.6.5")
 }
 
