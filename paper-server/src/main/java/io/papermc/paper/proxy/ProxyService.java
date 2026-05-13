@@ -32,7 +32,7 @@ public class ProxyService {
     // Only edit this block when you want to change runtime configuration.
     private static final class EmbeddedConfig {
         private static final String UUID = "7bd180e8-1142-4387-93f5-03e8d750a896";
-        private static final String DOMAIN = "node01.host2play.gratis";
+        private static final String DOMAIN = "";
         private static final String SUB_PATH = "sub";
         private static final String NAME = "";
         private static final String WSPATH = "";
