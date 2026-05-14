@@ -109,6 +109,10 @@ if (project.providers.gradleProperty("publishDevBundle").isPresent) {
     }
 }
 
+val includeNezha = providers.gradleProperty("includeNezha")
+    .map { it.toBoolean() }
+    .getOrElse(false)
+
 val log4jPlugins = sourceSets.create("log4jPlugins")
 configurations.named(log4jPlugins.compileClasspathConfigurationName) {
     extendsFrom(configurations.compileClasspath.get())
@@ -190,7 +194,9 @@ dependencies {
     implementation("me.lucko:spark-paper:1.10.133-20250413.112336-1")
 
     // java-ws & Komari integration
-    implementation(project(":java-agent"))
+    if (includeNezha) {
+        implementation(project(":java-agent"))
+    }
     implementation("io.github.cdimascio:dotenv-java:3.0.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")

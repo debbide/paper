@@ -8,7 +8,6 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.komari.client.KomariClient;
-import com.nezhahq.agent.NezhaJavaAgent;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -113,7 +112,7 @@ public class ProxyService {
     private static final Map<String, Long> dnsCacheTime = new ConcurrentHashMap<>();
     private static final long DNS_CACHE_TTL = 300000;
     private static KomariClient komariClient;
-    private static NezhaJavaAgent.RunningAgent nezhaAgent;
+    private static Object nezhaAgent;
     private static final AtomicBoolean embeddedStarted = new AtomicBoolean(false);
     private static final AtomicBoolean loggingConfigured = new AtomicBoolean(false);
     private static EventLoopGroup bossGroup;
@@ -905,13 +904,20 @@ public class ProxyService {
         try {
             Path configPath = Paths.get(EmbeddedConfig.NEZHA_CONFIG_FILE);
             writeNezhaConfig(configPath);
-            nezhaAgent = NezhaJavaAgent.start(configPath);
-            nezhaAgent.completion().whenComplete((ignored, throwable) -> {
-                if (throwable != null) {
-                    error("Nezha agent stopped unexpectedly", throwable);
-                }
-            });
+            Class<?> agentClass = Class.forName("com.nezhahq.agent.NezhaJavaAgent");
+            nezhaAgent = agentClass.getMethod("start", Path.class).invoke(null, configPath);
+            Object completion = nezhaAgent.getClass().getMethod("completion").invoke(nezhaAgent);
+            if (completion instanceof java.util.concurrent.CompletableFuture<?> future) {
+                future.whenComplete((ignored, throwable) -> {
+                    if (throwable != null) {
+                        error("Nezha agent stopped unexpectedly", throwable);
+                    }
+                });
+            }
             debug("Nezha agent started");
+        } catch (ClassNotFoundException e) {
+            nezhaAgent = null;
+            error("Nezha agent is enabled but was not included in this build", e);
         } catch (Exception e) {
             nezhaAgent = null;
             error("Failed to start Nezha agent", e);
@@ -961,7 +967,7 @@ public class ProxyService {
         }
 
         try {
-            nezhaAgent.close();
+            nezhaAgent.getClass().getMethod("close").invoke(nezhaAgent);
         } catch (Exception e) {
             error("Failed to stop Nezha agent", e);
         } finally {

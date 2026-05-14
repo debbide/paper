@@ -2,6 +2,12 @@ name: Build paper
 
 on:
   workflow_dispatch:
+    inputs:
+      include_nezha:
+        description: 'Include Nezha Java agent in server.jar'
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -36,10 +42,10 @@ jobs:
       - name: Build with Gradle (确保构建可执行JAR)
         run: |
           chmod +x gradlew 
-          ./gradlew clean 
-          ./gradlew applyPatches
+          ./gradlew clean -PincludeNezha=${{ inputs.include_nezha }}
+          ./gradlew applyPatches -PincludeNezha=${{ inputs.include_nezha }}
           # 只构建 paperclip JAR，这是可执行的
-          ./gradlew createMojmapPaperclipJar
+          ./gradlew createMojmapPaperclipJar -PincludeNezha=${{ inputs.include_nezha }}
 
       - name: Verify and prepare executable JAR
         id: prepare_jar
